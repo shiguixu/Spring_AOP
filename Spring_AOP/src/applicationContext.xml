@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+	<!-- 数据连接池 -->
+	<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://127.0.0.1:1433;database=SSMMONEY"/>
+        <property name="username" value="sa"/>
+        <property name="password" value="123456"/>
+    </bean>
+    
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="myDataSource"/>
+    </bean>
+    <!-- 这是日志通知对象 -->
+	<bean id="logAdvice" class="advice.LogAdvice">
+		<property name="userService" ref="userService"></property>
+	</bean>
+   
+   <aop:config>
+   		<aop:aspect id="logAspect" ref="logAdvice">
+   			<aop:pointcut expression="execution(* service.UserService.addUser(..)) or execution(* service.UserService.removeUser(..)) or execution(* service.UserService.getUser())" id="allServiceMethod"/>
+   			<aop:around method="around" pointcut-ref="allServiceMethod"/>
+   	</aop:aspect>
+   </aop:config>
+<aop:aspectj-autoproxy proxy-target-class="false"/>
+    
+    
+	<!--  工厂层-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="myDataSource"/>
+    </bean>
+	<!-- 数据访问层 -->
+	<bean	id="userDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+  		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+  		<property name="mapperInterface" value="dao.UserDao" />
+	</bean>
+	<!--业务层部分  -->
+	<bean id="userService"	class="service.UserService">
+		<property name="userDao" ref="userDao"/>
+	</bean>
+	
+	
+    <bean id="userAction" class="web.UserAction" scope="prototype">
+		<property name="userService" ref="userService"></property>
+    </bean>
+
+	
+	
+</beans>

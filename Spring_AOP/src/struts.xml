@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+
+ <struts>
+  <constant name="struts.enable.DynamicMethodInvocation" value="false" /> 
+  <constant name="struts.devMode" value="true" /> 
+  <constant name="struts.objectFactory" value="spring" /> 
+  <constant name="struts.objectFactory.spring.autoWire" value="type" /> 
+  
+ <package name="default" namespace="/" extends="struts-default">
+  
+  
+		<action name="tologin" class="userAction" method="tologin">
+			<result>/WEB-INF/pages/login.jsp</result>
+		</action>
+		
+		<action name="login" class="userAction" method="login">
+			<result name="input">/WEB-INF/pages/login.jsp</result>
+			<result name="success" type="chain">show</result>
+		</action>
+		
+		<action name="deleteuser" class="userAction" method="deleteuser">
+			<result name="input">/WEB-INF/pages/home.jsp</result>
+			<result name="success">/WEB-INF/pages/home.jsp</result>
+		</action>
+		<action name="show" class="userAction" method="show">
+			<result name="success">/WEB-INF/pages/home.jsp</result>
+		</action>
+		
+			<action name="adduser" class="userAction" method="adduser">
+			<result name="success" type="chain">show</result>
+		</action>
+  </package>
+  </struts>
